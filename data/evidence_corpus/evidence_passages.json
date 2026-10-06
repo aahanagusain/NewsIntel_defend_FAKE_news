@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ev_01",
+    "topic": "Venus atmosphere",
+    "text": "The atmosphere of Venus is extremely dense, composed primarily of carbon dioxide with clouds of sulfuric acid. The surface atmospheric pressure is about 92 times that of Earth at sea level, and surface temperatures exceed 460 degrees Celsius (860 degrees Fahrenheit), making human survival without extreme specialized life-support impossible.",
+    "source": "NASA Planetary Science Fact Sheet",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_02",
+    "topic": "JWST exoplanet water vapor",
+    "text": "NASA's James Webb Space Telescope detected water vapor in the atmosphere of rocky exoplanet GJ 486 b and star system observations, utilizing transmission spectroscopy instruments.",
+    "source": "Nature Astronomy / NASA Press Release",
+    "credibility_score": 0.95
+  },
+  {
+    "id": "ev_03",
+    "topic": "Currency legal tender regulations",
+    "text": "Central banks issue official monetary policies through formal government gazette publications. Physical paper banknotes and coins remain legal tender unless formally demonetized through legislated transition periods with full banking exchange guarantees.",
+    "source": "Federal Reserve & Reserve Bank Regulatory Standards",
+    "credibility_score": 0.96
+  },
+  {
+    "id": "ev_04",
+    "topic": "Cybersecurity Ransomware & Zero-Day Flaws",
+    "text": "CISA and international cybersecurity agencies maintain the Known Exploited Vulnerabilities (KEV) catalog. Critical zero-day vulnerabilities in enterprise software must be patched within vendor guidance timelines, and unverified rumors of global grid takedowns are frequently categorized as panic-inducing disinformation.",
+    "source": "CISA Cybersecurity Advisory Bulletin",
+    "credibility_score": 0.97
+  },
+  {
+    "id": "ev_05",
+    "topic": "Artificial Intelligence Regulations & Chip Export Controls",
+    "text": "The European Union AI Act and international trade authorities enforce risk-based compliance tiers for frontier generative AI models and high-performance GPU export controls. No blanket worldwide prohibition on general artificial intelligence development has been legislated.",
+    "source": "European Commission & Commerce Department Official Gazette",
+    "credibility_score": 0.96
+  },
+  {
+    "id": "ev_06",
+    "topic": "Elections & Voting Machines Integrity",
+    "text": "Independent election audits, paper ballot receipts, and cybersecurity reviews confirmed that certified voting machines operate on air-gapped systems and do not flip votes automatically across federal and national elections.",
+    "source": "Cybersecurity & Infrastructure Security Agency (CISA) Joint Statement",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_07",
+    "topic": "Renewable Energy & Power Grid Blackouts",
+    "text": "Grid operators confirm that electricity blackout events are primarily caused by severe weather damage to transmission infrastructure, fuel freezing, and equipment bottlenecks rather than wind turbine or solar battery malfunctions.",
+    "source": "Federal Energy Regulatory Commission (FERC) Grid Reliability Report",
+    "credibility_score": 0.94
+  },
+  {
+    "id": "ev_08",
+    "topic": "COVID-19 & mRNA Vaccine Safety",
+    "text": "Extensive peer-reviewed epidemiological research across millions of recipients verified that mRNA vaccines do not contain microchips, do not alter human genomic DNA, and have undergone rigorous clinical trial phases.",
+    "source": "World Health Organization (WHO) Vaccine Safety Committee",
+    "credibility_score": 0.99
+  },
+  {
+    "id": "ev_09",
+    "topic": "Quantum Computing & Encryption Breakthroughs",
+    "text": "NIST has standardized post-quantum cryptographic algorithms (including ML-KEM and ML-DSA). Existing commercial RSA-2048 encryption remains secure against currently available NISQ-era quantum hardware.",
+    "source": "National Institute of Standards and Technology (NIST) Post-Quantum Standards",
+    "credibility_score": 0.97
+  },
+  {
+    "id": "ev_10",
+    "topic": "Corporate Earnings & Stock Market Halts",
+    "text": "Major stock exchanges (NYSE, NASDAQ) employ automated Market-Wide Circuit Breakers (MWCB) that pause trading for 15 minutes when the S&P 500 declines 7% or 13%, ensuring orderly market mechanisms rather than covert financial collapse.",
+    "source": "Securities and Exchange Commission (SEC) Regulatory Disclosure",
+    "credibility_score": 0.96
+  }
+]

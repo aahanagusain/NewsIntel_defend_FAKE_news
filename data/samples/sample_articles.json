@@ -1,0 +1,52 @@
+[
+  {
+    "id": "sample_fake_01",
+    "title": "NASA Secret Leak: Scientists Discover Humans Can Live on Venus Without Oxygen Gear",
+    "content": "A sensational leak from space research agency officials claims that humans could comfortably survive on Venus without pressurized space suits or supplemental oxygen. The report asserts that atmospheric pressure at Venus surface is identical to sea level on Earth. Millions of researchers were reportedly stunned by the classified discovery released online today.",
+    "label": 1,
+    "source": "FakeNewsNet_Sample",
+    "comments": [
+      "This is completely absurd! Venus has surface temperatures over 450C and massive atmospheric pressure.",
+      "Pure clickbait pseudoscience.",
+      "How could anyone claim Venus surface pressure is equal to Earth sea level?",
+      "Total fake news designed for viral clicks."
+    ],
+    "extracted_claims": [
+      "Humans can comfortably survive on Venus without pressurized space suits or supplemental oxygen.",
+      "Atmospheric pressure at Venus surface is identical to sea level on Earth."
+    ]
+  },
+  {
+    "id": "sample_real_01",
+    "title": "James Webb Space Telescope Observes Water Vapor Around Rocky Exoplanet",
+    "content": "Astronomers using NASA's James Webb Space Telescope have detected signatures of water vapor surrounding a rocky exoplanet located in the habitable zone of its host star. The observation represents a significant step forward in characterizing alien atmospheres with high-precision spectroscopy instruments. Scientists cautioned that further observations are required to rule out atmospheric contamination from starspots.",
+    "label": 0,
+    "source": "FakeNewsNet_Sample",
+    "comments": [
+      "Webb telescope spectroscopy results continue to amaze the astrophysics community.",
+      "Important distinction made regarding starspot contamination in spectroscopy data.",
+      "Solid research published in peer-reviewed astrophysics journals.",
+      "Fascinating exoplanet atmospheric science."
+    ],
+    "extracted_claims": [
+      "James Webb Space Telescope detected signatures of water vapor surrounding a rocky exoplanet."
+    ]
+  },
+  {
+    "id": "sample_fake_02",
+    "title": "Central Bank Announces Immediate Cancellation of All Paper Currency by Midnight",
+    "content": "In an unprecedented midnight directive, the Central Bank announced that all physical paper currency bills are immediately null and void across all banks and retail merchants starting tonight. Citizens are instructed to turn over physical cash to military collection points without receipt. Financial analysts predict total collapse of traditional commerce by morning.",
+    "label": 1,
+    "source": "FakeNewsNet_Sample",
+    "comments": [
+      "No official central bank notice or government gazette has released any such news.",
+      "This fake rumor is causing panic among elderly citizens.",
+      "Verified official banking authorities confirmed physical cash remains legal tender.",
+      "Fake headline attempting to trigger bank runs."
+    ],
+    "extracted_claims": [
+      "Central Bank announced all physical paper currency bills are immediately null and void by midnight.",
+      "Citizens must turn over physical cash to military collection points without receipt."
+    ]
+  }
+]
