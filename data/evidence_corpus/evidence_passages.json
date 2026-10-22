@@ -1,72 +1,142 @@
 [
   {
-    "id": "ev_01",
-    "topic": "Venus atmosphere",
-    "text": "The atmosphere of Venus is extremely dense, composed primarily of carbon dioxide with clouds of sulfuric acid. The surface atmospheric pressure is about 92 times that of Earth at sea level, and surface temperatures exceed 460 degrees Celsius (860 degrees Fahrenheit), making human survival without extreme specialized life-support impossible.",
-    "source": "NASA Planetary Science Fact Sheet",
-    "credibility_score": 0.98
-  },
-  {
-    "id": "ev_02",
-    "topic": "JWST exoplanet water vapor",
-    "text": "NASA's James Webb Space Telescope detected water vapor in the atmosphere of rocky exoplanet GJ 486 b and star system observations, utilizing transmission spectroscopy instruments.",
-    "source": "Nature Astronomy / NASA Press Release",
-    "credibility_score": 0.95
-  },
-  {
-    "id": "ev_03",
-    "topic": "Currency legal tender regulations",
-    "text": "Central banks issue official monetary policies through formal government gazette publications. Physical paper banknotes and coins remain legal tender unless formally demonetized through legislated transition periods with full banking exchange guarantees.",
-    "source": "Federal Reserve & Reserve Bank Regulatory Standards",
-    "credibility_score": 0.96
-  },
-  {
-    "id": "ev_04",
-    "topic": "Cybersecurity Ransomware & Zero-Day Flaws",
-    "text": "CISA and international cybersecurity agencies maintain the Known Exploited Vulnerabilities (KEV) catalog. Critical zero-day vulnerabilities in enterprise software must be patched within vendor guidance timelines, and unverified rumors of global grid takedowns are frequently categorized as panic-inducing disinformation.",
-    "source": "CISA Cybersecurity Advisory Bulletin",
-    "credibility_score": 0.97
-  },
-  {
-    "id": "ev_05",
-    "topic": "Artificial Intelligence Regulations & Chip Export Controls",
-    "text": "The European Union AI Act and international trade authorities enforce risk-based compliance tiers for frontier generative AI models and high-performance GPU export controls. No blanket worldwide prohibition on general artificial intelligence development has been legislated.",
-    "source": "European Commission & Commerce Department Official Gazette",
-    "credibility_score": 0.96
-  },
-  {
-    "id": "ev_06",
-    "topic": "Elections & Voting Machines Integrity",
-    "text": "Independent election audits, paper ballot receipts, and cybersecurity reviews confirmed that certified voting machines operate on air-gapped systems and do not flip votes automatically across federal and national elections.",
-    "source": "Cybersecurity & Infrastructure Security Agency (CISA) Joint Statement",
-    "credibility_score": 0.98
-  },
-  {
-    "id": "ev_07",
-    "topic": "Renewable Energy & Power Grid Blackouts",
-    "text": "Grid operators confirm that electricity blackout events are primarily caused by severe weather damage to transmission infrastructure, fuel freezing, and equipment bottlenecks rather than wind turbine or solar battery malfunctions.",
-    "source": "Federal Energy Regulatory Commission (FERC) Grid Reliability Report",
-    "credibility_score": 0.94
-  },
-  {
-    "id": "ev_08",
-    "topic": "COVID-19 & mRNA Vaccine Safety",
-    "text": "Extensive peer-reviewed epidemiological research across millions of recipients verified that mRNA vaccines do not contain microchips, do not alter human genomic DNA, and have undergone rigorous clinical trial phases.",
-    "source": "World Health Organization (WHO) Vaccine Safety Committee",
+    "id": "ev_in_01",
+    "topic": "Demonetisation 2016 India",
+    "text": "On 8 November 2016, the Government of India, through a Gazette notification, demonetised all ₹500 and ₹1000 banknotes issued by the Reserve Bank of India. The demonetized notes ceased to be legal tender from midnight. Citizens were given a window to deposit old notes in bank accounts. The ₹2000 note was later withdrawn from circulation in May 2023 via RBI official notification, though it remained legal tender until September 2023.",
+    "source": "Reserve Bank of India Official Gazette & Government of India Press Release",
     "credibility_score": 0.99
   },
   {
-    "id": "ev_09",
-    "topic": "Quantum Computing & Encryption Breakthroughs",
-    "text": "NIST has standardized post-quantum cryptographic algorithms (including ML-KEM and ML-DSA). Existing commercial RSA-2048 encryption remains secure against currently available NISQ-era quantum hardware.",
-    "source": "National Institute of Standards and Technology (NIST) Post-Quantum Standards",
+    "id": "ev_in_02",
+    "topic": "Article 370 Abrogation India",
+    "text": "Article 370 of the Indian Constitution, which granted special autonomous status to Jammu & Kashmir, was abrogated by the Indian Parliament on 5 August 2019. The Constitution (Application to Jammu and Kashmir) Order, 2019 was issued by the President. Jammu & Kashmir was bifurcated into two Union Territories: Jammu & Kashmir (with legislature) and Ladakh (without legislature). This is an established constitutional fact, not disputed by any official government body.",
+    "source": "Indian Parliament Official Gazette & Ministry of Home Affairs, Government of India",
+    "credibility_score": 0.99
+  },
+  {
+    "id": "ev_in_03",
+    "topic": "Electoral Bonds Scheme struck down by Supreme Court",
+    "text": "The Supreme Court of India unanimously struck down the Electoral Bonds Scheme on 15 February 2024, declaring it unconstitutional. The five-judge constitutional bench held that the scheme violated the right to information under Article 19(1)(a) of the Indian Constitution. The SBI was directed to submit all bond details to the Election Commission of India. No legitimate legal challenge has overturned this ruling.",
+    "source": "Supreme Court of India Judgment - Association for Democratic Reforms vs Union of India",
+    "credibility_score": 0.99
+  },
+  {
+    "id": "ev_in_04",
+    "topic": "Chandrayaan-3 Moon Landing",
+    "text": "ISRO's Chandrayaan-3 mission successfully soft-landed on the Moon's south polar region on 23 August 2023, making India the first country to land near the lunar south pole and the fourth country to achieve a soft lunar landing. The Vikram lander and Pragyan rover conducted scientific experiments including sulfur detection on the surface. Claims that the mission failed or was faked are categorically false.",
+    "source": "ISRO Official Mission Report & Space Department, Government of India",
+    "credibility_score": 0.99
+  },
+  {
+    "id": "ev_in_05",
+    "topic": "UPI Digital Payments India",
+    "text": "The Unified Payments Interface (UPI), operated by NPCI (National Payments Corporation of India) under RBI oversight, processed over 13 billion transactions in a single month (March 2024), totalling over ₹19 lakh crore. UPI is a free-to-use real-time payment system; charges or taxes on UPI transactions below ₹2000 are not levied. The Government of India has repeatedly clarified that no UPI transaction tax is being introduced despite viral misinformation.",
+    "source": "NPCI Official Data & Ministry of Finance Press Release, Government of India",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_in_06",
+    "topic": "EVM Electronic Voting Machine Integrity India",
+    "text": "India's Electronic Voting Machines (EVMs) used by the Election Commission of India are air-gapped, standalone devices with no internet or wireless connectivity. The Supreme Court of India and multiple High Courts, as well as independent technical expert committees, have upheld the integrity of EVMs in repeated election challenges. There is no credible evidence of systematic EVM tampering in Indian elections.",
+    "source": "Election Commission of India Technical Guidelines & Supreme Court of India Judgments",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_in_07",
+    "topic": "COVID-19 Vaccines in India - Covaxin and Covishield",
+    "text": "Covaxin (BBV152, by Bharat Biotech) and Covishield (ChAdOx1, by Serum Institute of India) received emergency use authorization from the DCGI and ICMR after Phase 3 clinical trials demonstrating safety and efficacy. WHO has granted both vaccines Emergency Use Listing. Neither vaccine contains microchips, graphene oxide, or alters human DNA. Post-vaccination myocarditis cases are extremely rare and are monitored by ICMR and the Adverse Events Following Immunisation (AEFI) committee.",
+    "source": "Indian Council of Medical Research (ICMR) & Central Drugs Standard Control Organisation (CDSCO)",
+    "credibility_score": 0.99
+  },
+  {
+    "id": "ev_in_08",
+    "topic": "Indian GDP Growth and Economy",
+    "text": "India's GDP grew at 8.2% in the financial year 2023-24, making it the fastest-growing major economy in the world according to IMF and World Bank data. The RBI projects continued growth of 7.2% for 2024-25. India's nominal GDP stands at approximately $3.7 trillion, making it the world's fifth-largest economy. Viral claims about an impending Indian economic collapse are not supported by any major international financial institution.",
+    "source": "Reserve Bank of India Annual Report 2024 & Ministry of Statistics and Programme Implementation (MoSPI)",
     "credibility_score": 0.97
   },
   {
-    "id": "ev_10",
-    "topic": "Corporate Earnings & Stock Market Halts",
-    "text": "Major stock exchanges (NYSE, NASDAQ) employ automated Market-Wide Circuit Breakers (MWCB) that pause trading for 15 minutes when the S&P 500 declines 7% or 13%, ensuring orderly market mechanisms rather than covert financial collapse.",
-    "source": "Securities and Exchange Commission (SEC) Regulatory Disclosure",
+    "id": "ev_in_09",
+    "topic": "Aadhar UIDAI Data Security",
+    "text": "The Unique Identification Authority of India (UIDAI) operates Aadhaar under the Aadhaar Act, 2016. Biometric data is stored in encrypted form and is not shared with third parties without consent. Periodic security audits have confirmed data security. While some limited demographic data breaches have occurred in connected state databases, the core Aadhaar biometric database has not been compromised according to UIDAI official statements and government-commissioned audits.",
+    "source": "Unique Identification Authority of India (UIDAI) Annual Report & Ministry of Electronics and IT",
+    "credibility_score": 0.95
+  },
+  {
+    "id": "ev_in_10",
+    "topic": "India-China LAC Border Situation",
+    "text": "The Line of Actual Control (LAC) between India and China has been a source of ongoing border tension. Following the Galwan Valley clash of June 2020, both India and China engaged in multiple rounds of military-level talks. Several friction points including Depsang and Demmchok were partially resolved by October 2024. The Indian Army and MEA regularly issue statements; unofficial viral claims about territory loss or military defeat are not supported by official government or defence sources.",
+    "source": "Ministry of External Affairs, Government of India & Indian Army Official Statements",
     "credibility_score": 0.96
+  },
+  {
+    "id": "ev_in_11",
+    "topic": "ISRO Gaganyaan Human Spaceflight",
+    "text": "Gaganyaan is India's first crewed orbital spaceflight programme by ISRO. The programme aims to launch Indian astronauts (Gagannauts) into low Earth orbit. As of 2024, multiple uncrewed test missions are underway. Astronauts Prashanth Balakrishnan Nair, Angad Pratap, Ajit Krishnan, and Shubhanshu Shukla are officially selected. The first crewed mission is planned for 2025.",
+    "source": "ISRO Official Gaganyaan Programme Update & Department of Space, Government of India",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_in_12",
+    "topic": "WhatsApp Misinformation India",
+    "text": "India is one of the largest markets for WhatsApp with over 500 million users. The platform has been repeatedly identified as a major vector for misinformation including viral fake news, manipulated videos, and false government notifications. The Press Information Bureau (PIB) Fact-Check unit and AltNews, FactChecker.in, and Boom Live regularly debunk viral false claims. Users should verify news through official PIB handle @PIBFactCheck before sharing.",
+    "source": "Press Information Bureau Fact-Check Unit, Government of India & AltNews Research",
+    "credibility_score": 0.97
+  },
+  {
+    "id": "ev_in_13",
+    "topic": "Sensex BSE India Stock Market",
+    "text": "The BSE Sensex (Bombay Stock Exchange Sensitive Index) is a free-float market-weighted stock index of 30 well-established and financially sound companies listed on the Bombay Stock Exchange. The NSE Nifty 50 consists of 50 large-cap Indian stocks. SEBI (Securities and Exchange Board of India) regulates Indian securities markets. Claims about a single trader or entity controlling the Sensex are false; SEBI enforces strict insider trading laws.",
+    "source": "SEBI Official Regulations & BSE/NSE Market Data",
+    "credibility_score": 0.97
+  },
+  {
+    "id": "ev_in_14",
+    "topic": "GST Goods and Services Tax India",
+    "text": "India's Goods and Services Tax (GST) was implemented on 1 July 2017, replacing a complex system of central and state taxes. GST has four main tax slabs: 5%, 12%, 18%, and 28%. Essential commodities including unpackaged food grains, fresh vegetables, and medicines are exempt from GST or taxed at 0%. GST Council decisions are made by consensus among central and state governments.",
+    "source": "GST Council, Ministry of Finance, Government of India",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_in_15",
+    "topic": "India Cybersecurity CERT-In",
+    "text": "CERT-In (Indian Computer Emergency Response Team) under MeitY is India's national nodal agency for cybersecurity incidents. CERT-In issues advisories on vulnerabilities, cyber threats, and ransomware attacks targeting Indian infrastructure. The Information Technology (Amendment) Act 2008 and subsequent rules govern cybersecurity compliance. Data breach notifications must be made to CERT-In within 6 hours under 2022 guidelines.",
+    "source": "CERT-In Official Advisories & Ministry of Electronics and Information Technology (MeitY)",
+    "credibility_score": 0.97
+  },
+  {
+    "id": "ev_in_16",
+    "topic": "India Population Census",
+    "text": "India's population surpassed China's to become the world's most populous nation in 2023, with over 1.44 billion people, per UN Population Fund estimates. The Indian decennial census was delayed beyond 2021 due to the COVID-19 pandemic; the 2021 census data is pending release. Claims citing specific population figures as government-issued are unverified until the official census is conducted.",
+    "source": "UN Population Fund (UNFPA) World Population Data & Office of the Registrar General, India",
+    "credibility_score": 0.96
+  },
+  {
+    "id": "ev_in_17",
+    "topic": "Ayodhya Ram Mandir Construction",
+    "text": "The Ram Mandir (Ram Janmabhoomi Temple) in Ayodhya, Uttar Pradesh was inaugurated on 22 January 2024 by Prime Minister Narendra Modi. The Supreme Court of India in its landmark judgment in November 2019 (M. Siddiq vs Mahant Suresh Das) directed the disputed land to be handed over to the Ram Janmabhoomi Nyas for construction of the Hindu temple. Construction is ongoing with the main sanctum completed.",
+    "source": "Supreme Court of India Judgment 2019 & Shri Ram Janmabhoomi Teerth Kshetra Trust",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_in_18",
+    "topic": "Indian Farmers Protest MSP",
+    "text": "Indian farmers have periodically staged large-scale protests demanding a legal guarantee for Minimum Support Price (MSP) for all crops, debt waiver, and other demands. The three controversial farm laws (The Farmers' Produce Trade and Commerce Act, 2020; The Farmers Empowerment and Protection Agreement Act, 2020; and The Essential Commodities Amendment Act, 2020) were repealed by the Government of India in November 2021 following sustained farmer protests.",
+    "source": "Ministry of Agriculture, Government of India & Parliament of India Official Records",
+    "credibility_score": 0.98
+  },
+  {
+    "id": "ev_in_19",
+    "topic": "India Renewable Energy Solar Power",
+    "text": "India has set a target of achieving 500 GW of non-fossil fuel-based energy capacity by 2030. India's installed solar capacity surpassed 80 GW by 2024, making it the third-largest solar market globally. The National Solar Mission is part of India's broader climate commitments under the Paris Agreement. Viral claims that India is abandoning solar energy or coal energy targets without announcement are false.",
+    "source": "Ministry of New and Renewable Energy (MNRE) & Bureau of Energy Efficiency, Government of India",
+    "credibility_score": 0.97
+  },
+  {
+    "id": "ev_in_20",
+    "topic": "Indian Railways Facts",
+    "text": "Indian Railways is one of the world's largest rail networks with over 68,000 km of track. The Vande Bharat Express is an indigenously designed and manufactured semi-high-speed train operating at up to 160 km/h. The Vande Bharat Sleeper version is under development. Claims about Indian trains reaching 300 km/h or bullet trains becoming operational before 2028 in all corridors are premature and unsupported by official Ministry of Railways data.",
+    "source": "Ministry of Railways, Government of India & Indian Railways Annual Statistical Statement",
+    "credibility_score": 0.97
   }
 ]

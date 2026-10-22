@@ -1,10 +1,10 @@
 """
-NLP Processor Service for News Analysis.
+NLP Processor Service for India-Focused News Analysis.
 Implements:
-1. Category Classification (Technology, Politics, National, International, Business, Science, Cybersecurity)
+1. Category Classification (Technology, Politics, National, International, Business, Science, FactCheck, IndiaEconomy)
 2. Sentiment Analysis (Polarity, Subjectivity/Sensationalism, Classification)
-3. Named-Entity Recognition (PERSON, ORGANIZATION, LOCATION, DATE, EVENT)
-4. Topic & Keyphrase Detection (TF-IDF inspired term-frequency ranking and thematic tags)
+3. Named-Entity Recognition (PERSON, ORGANIZATION, LOCATION, DATE, EVENT) — India-aware
+4. Topic & Keyphrase Detection — India-specific hashtags
 """
 
 import re
@@ -20,57 +20,100 @@ class NLPProcessor:
             'Cybersecurity': {
                 'ransomware': 3.5, 'malware': 3.0, 'vulnerability': 2.8, 'cve': 3.5,
                 'zero-day': 3.5, 'hack': 2.5, 'hacker': 2.8, 'breach': 2.8,
-                'phishing': 3.0, 'cisa': 3.2, 'cyberattack': 3.5, 'ddos': 3.0,
+                'phishing': 3.0, 'cert-in': 3.5, 'cyberattack': 3.5, 'ddos': 3.0,
                 'trojan': 3.0, 'exploit': 2.8, 'cyber': 2.5, 'firewall': 2.2,
                 'encryption': 2.2, 'infosec': 3.0, 'threat actor': 3.5, 'apt': 3.0,
-                'patch': 2.0, 'backdoor': 3.2, 'spyware': 3.0, 'data leak': 2.8
+                'patch': 2.0, 'backdoor': 3.2, 'spyware': 3.0, 'data leak': 2.8,
+                'meity': 2.8, 'it act': 3.0, 'digital fraud': 2.8, 'sim swap': 2.5,
             },
             'Technology': {
                 'ai': 2.5, 'artificial intelligence': 3.5, 'algorithm': 2.2, 'software': 2.0,
-                'hardware': 2.0, 'semiconductor': 3.0, 'chip': 2.0, 'gpu': 2.5,
-                'apple': 2.0, 'microsoft': 2.0, 'google': 2.0, 'nvidia': 2.8,
-                'meta': 1.8, 'smartphone': 2.2, 'cloud': 1.8, 'robotics': 2.8,
-                'llm': 3.2, 'neural network': 3.0, 'startup': 1.8, 'computing': 2.0,
-                'quantum': 2.2, 'open-source': 2.2, 'virtual reality': 2.5, 'autonomous': 2.2
+                'hardware': 2.0, 'semiconductor': 3.0, 'chip': 2.0, 'startup': 2.2,
+                'isro': 3.0, 'chandrayaan': 3.5, 'gaganyaan': 3.5, 'drdo': 2.8,
+                'infosys': 2.2, 'wipro': 2.2, 'tcs': 2.2, 'hcl': 2.0,
+                'bengaluru': 2.0, 'tech park': 2.2, 'iit': 2.5, 'robotics': 2.8,
+                'llm': 3.2, 'neural network': 3.0, 'deeptech': 2.8, 'computing': 2.0,
+                'upi': 2.5, 'fintech': 2.8, 'digital india': 3.0, 'iot': 2.2,
+                'open-source': 2.2, 'virtual reality': 2.5, 'autonomous': 2.2,
             },
             'Science': {
-                'nasa': 3.0, 'space': 2.2, 'telescope': 2.8, 'astronomy': 3.0,
-                'planet': 2.2, 'galaxy': 2.8, 'exoplanet': 3.5, 'physics': 2.8,
+                'isro': 3.2, 'space': 2.2, 'telescope': 2.8, 'astronomy': 3.0,
+                'chandrayaan': 3.5, 'gaganyaan': 3.5, 'aditya': 3.0, 'mars orbiter': 3.5,
+                'iit': 2.5, 'iiser': 2.8, 'csir': 2.8, 'dbt': 2.2,
                 'biology': 2.5, 'climate': 2.2, 'gene': 2.8, 'crispr': 3.5,
-                'fossil': 2.8, 'laboratory': 2.0, 'study': 1.5, 'researchers': 1.8,
-                'scientists': 2.0, 'experiment': 2.0, 'james webb': 3.5, 'ocean': 1.8,
-                'ecosystem': 2.2, 'species': 2.2, 'dna': 2.8, 'quantum physics': 3.2
+                'fossil': 2.8, 'laboratory': 2.0, 'researchers': 1.8,
+                'scientists': 2.0, 'experiment': 2.0, 'ocean': 1.8,
+                'ecosystem': 2.2, 'species': 2.2, 'dna': 2.8,
             },
             'Politics': {
-                'senate': 2.8, 'congress': 2.8, 'election': 3.0, 'democrat': 2.8,
-                'republican': 2.8, 'president': 2.2, 'bill': 2.0, 'lawmaker': 2.5,
-                'legislation': 2.8, 'governor': 2.2, 'campaign': 2.5, 'voter': 2.5,
-                'ballot': 2.8, 'court': 2.0, 'supreme court': 3.2, 'politician': 2.8,
-                'policy': 1.8, 'diplomat': 2.2, 'parliament': 2.8, 'minister': 2.2,
-                'prime minister': 2.8, 'veto': 2.8, 'caucus': 3.0, 'impeachment': 3.2
+                'parliament': 3.0, 'lok sabha': 3.5, 'rajya sabha': 3.5,
+                'election': 3.0, 'bjp': 3.0, 'congress': 2.8, 'aap': 2.5,
+                'modi': 2.8, 'rahul gandhi': 2.8, 'amit shah': 2.8,
+                'chief minister': 2.5, 'governor': 2.2, 'mla': 2.8, 'mp': 2.2,
+                'election commission': 3.2, 'evm': 3.0, 'bypolls': 2.8,
+                'cabinet': 2.5, 'minister': 2.2, 'ruling party': 2.5,
+                'opposition': 2.5, 'no-confidence': 3.2, 'budget session': 2.8,
+                'supreme court': 2.8, 'high court': 2.5, 'verdict': 2.5,
+                'constitution': 2.8, 'article 370': 3.5, 'referendum': 2.8,
             },
             'Business': {
-                'stock': 2.8, 'shares': 2.5, 'revenue': 2.8, 'profit': 2.5,
-                'quarter': 1.8, 'earnings': 2.8, 'wall street': 3.2, 'market': 2.0,
-                'investor': 2.5, 'nasdaq': 3.2, 's&p': 3.0, 'dow jones': 3.2,
-                'inflation': 2.5, 'interest rate': 2.8, 'central bank': 2.8, 'fed': 2.2,
-                'ceo': 2.2, 'acquisition': 2.8, 'merger': 2.8, 'ipo': 3.2,
-                'recession': 2.8, 'valuation': 2.5, 'fintech': 2.8, 'dividend': 2.8
+                'sensex': 3.2, 'nifty': 3.2, 'bse': 2.8, 'nse': 2.8,
+                'rupee': 2.5, 'rbi': 3.0, 'sebi': 3.0, 'repo rate': 3.0,
+                'gdp': 2.8, 'inflation': 2.5, 'gst': 3.0, 'budget': 2.8,
+                'ipo': 3.2, 'unicorn': 2.8, 'startup india': 3.0,
+                'reliance': 2.5, 'tata': 2.2, 'adani': 2.5, 'hdfc': 2.5,
+                'revenue': 2.8, 'profit': 2.5, 'quarter': 1.8, 'earnings': 2.8,
+                'fdi': 3.0, 'export': 2.2, 'import': 2.2, 'trade deficit': 2.8,
+                'mutual fund': 2.5, 'bond yield': 2.5, 'rupee depreciation': 2.8,
             },
             'International': {
-                'united nations': 3.2, 'treaty': 2.8, 'global': 1.8, 'foreign minister': 2.8,
-                'nato': 3.2, 'eu': 2.2, 'european union': 3.0, 'summit': 2.2,
-                'sanctions': 3.0, 'diplomacy': 2.8, 'ukraine': 2.5, 'middle east': 2.8,
-                'asia-pacific': 2.8, 'bilateral': 2.8, 'geopolitics': 3.2, 'embassy': 2.8,
-                'international': 2.2, 'humanitarian': 2.5, 'refugee': 2.8, 'cross-border': 2.5
+                'united nations': 3.2, 'treaty': 2.8, 'global': 1.8,
+                'nato': 3.2, 'eu': 2.2, 'asean': 3.0, 'saarc': 3.0,
+                'pakistan': 2.8, 'china': 2.5, 'bangladesh': 2.5, 'nepal': 2.5,
+                'sri lanka': 2.5, 'myanmar': 2.5, 'bhutan': 2.2,
+                'sanctions': 3.0, 'diplomacy': 2.8, 'bilateral': 2.8,
+                'geopolitics': 3.2, 'embassy': 2.8, 'consulate': 2.5,
+                'g20': 3.0, 'g7': 2.8, 'quad': 3.0, 'brics': 3.0,
+                'line of actual control': 3.5, 'lac': 3.0, 'border dispute': 2.8,
             },
             'National': {
-                'federal': 2.0, 'state': 1.5, 'homeland': 2.5, 'nationwide': 2.2,
-                'domestic': 2.2, 'infrastructure': 2.0, 'public safety': 2.5, 'census': 2.8,
-                'highway': 2.0, 'agency': 1.5, 'national park': 2.8, 'interstate': 2.2,
-                'county': 1.8, 'coast guard': 2.8, 'department of': 2.0, 'fbi': 2.8,
-                'postal service': 2.8, 'treasury': 2.2, 'governance': 2.0
-            }
+                'india': 1.5, 'indian': 1.5, 'bharat': 2.0, 'central government': 2.5,
+                'state government': 2.2, 'nationwide': 2.2, 'domestic': 2.0,
+                'infrastructure': 2.0, 'public safety': 2.5, 'census': 2.8,
+                'highway': 2.0, 'national highway': 2.5, 'metro': 2.0,
+                'district': 1.8, 'cbi': 2.8, 'ed enforcement': 3.0,
+                'income tax': 2.8, 'aadhaar': 2.8, 'jan dhan': 2.8,
+                'swachh bharat': 2.8, 'make in india': 2.8, 'atmanirbhar': 2.8,
+            },
+            'Sports': {
+                'cricket': 3.5, 'bcci': 3.5, 'ipl': 3.5, 'test match': 3.0,
+                'wicket': 3.0, 'batting': 2.8, 'bowling': 2.8, 'century': 2.8,
+                'odi': 3.0, 't20': 3.0, 'icc': 3.2, 'rohit sharma': 3.0,
+                'virat kohli': 3.0, 'bumrah': 3.0, 'hardik pandya': 2.8,
+                'football': 2.8, 'isl': 3.0, 'fifa': 3.0, 'olympics': 3.2,
+                'badminton': 3.0, 'pv sindhu': 3.0, 'neeraj chopra': 3.5,
+                'hockey': 3.0, 'asian games': 3.2, 'kabaddi': 3.0,
+                'pro kabaddi': 3.0, 'chess': 3.0, 'grandmaster': 3.0,
+                'praggnanandhaa': 3.2, 'gukesh': 3.2, 'tournament': 2.2,
+                'champion': 2.5, 'medal': 2.8, 'athletics': 2.5,
+            },
+            'Entertainment': {
+                'bollywood': 3.5, 'tollywood': 3.2, 'kollywood': 3.2,
+                'box office': 3.2, 'cinema': 3.0, 'movie': 2.8, 'film': 2.5,
+                'actor': 2.5, 'actress': 2.5, 'director': 2.2, 'trailer': 2.8,
+                'ott': 3.0, 'netflix': 2.5, 'prime video': 2.5, 'teaser': 2.5,
+                'celebrity': 2.5, 'album': 2.2, 'music': 2.2, 'singer': 2.2,
+                'concert': 2.5, 'theatre': 2.2, 'blockbuster': 3.0,
+            },
+            'FactCheck': {
+                'fake news': 4.0, 'fact check': 4.0, 'misinformation': 3.8,
+                'disinformation': 3.8, 'debunked': 3.5, 'hoax': 3.5,
+                'misleading': 3.2, 'rumor': 3.0, 'false claim': 3.5,
+                'altnews': 3.5, 'factchecker': 3.5, 'boomlive': 3.5,
+                'vishvasnews': 3.0, 'misattributed': 3.0, 'deepfake': 3.2,
+                'edited video': 3.0, 'out of context': 3.0, 'no evidence': 3.0,
+                'propaganda': 2.8, 'manipulated': 2.8, 'fabricated': 3.2,
+            },
         }
 
         # Sentiment lexicon
@@ -97,18 +140,44 @@ class NLPProcessor:
             'reported', 'into', 'over', 'than', 'them', 'these', 'would', 'could', 'some'
         }
 
-        # Known entity lists for fast high-accuracy NER
+        # Known entity lists for fast high-accuracy NER — India-focused
         self.known_orgs = {
-            'NASA', 'Google', 'Microsoft', 'Apple', 'Meta', 'NVIDIA', 'OpenAI', 'Amazon',
-            'Tesla', 'CISA', 'FBI', 'CIA', 'NATO', 'WHO', 'UN', 'SEC', 'NIST', 'CDC',
-            'Federal Reserve', 'White House', 'European Commission', 'Reuters', 'BBC',
-            'PolitiFact', 'CrowdStrike', 'Lockheed', 'SpaceX', 'DeepMind', 'Anthropic'
+            # Indian government & agencies
+            'ISRO', 'DRDO', 'RBI', 'SEBI', 'CBI', 'ED', 'NIA', 'NCB', 'RAW',
+            'IB', 'NITI Aayog', 'Planning Commission', 'Election Commission',
+            'Supreme Court', 'High Court', 'CAG', 'NHRC', 'UPSC', 'UIDAI',
+            # Political parties
+            'BJP', 'INC', 'Congress', 'AAP', 'TMC', 'SP', 'BSP', 'NCP',
+            'JDU', 'RJD', 'DMK', 'AIADMK', 'TRS', 'YSR Congress', 'Shiv Sena',
+            # Indian corporates
+            'Reliance', 'Tata', 'Adani', 'Infosys', 'Wipro', 'TCS', 'HCL',
+            'HDFC', 'ICICI', 'SBI', 'LIC', 'ONGC', 'BHEL', 'HAL',
+            'Flipkart', 'Zomato', 'Paytm', 'Ola', 'Nykaa', 'Meesho',
+            # Indian media / fact-check
+            'NDTV', 'Times of India', 'The Hindu', 'Indian Express', 'Hindustan Times',
+            'AltNews', 'FactChecker', 'Boom Live', 'Vishvas News',
+            # International (relevant to India)
+            'Google', 'Microsoft', 'Apple', 'Meta', 'Amazon', 'Samsung',
+            'WHO', 'UN', 'IMF', 'World Bank', 'ADB', 'WTO',
         }
         self.known_locations = {
-            'Washington', 'London', 'Beijing', 'Moscow', 'Kyiv', 'Brussels', 'Tokyo',
-            'Paris', 'Berlin', 'New York', 'California', 'Texas', 'Florida', 'Geneva',
-            'United States', 'China', 'Russia', 'Ukraine', 'India', 'Europe', 'Taiwan',
-            'Middle East', 'San Francisco', 'Silicon Valley', 'Venus', 'Mars', 'Moon'
+            # Indian cities
+            'Delhi', 'New Delhi', 'Mumbai', 'Bengaluru', 'Bangalore', 'Hyderabad',
+            'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow',
+            'Surat', 'Kanpur', 'Nagpur', 'Indore', 'Bhopal', 'Patna',
+            'Vadodara', 'Ghaziabad', 'Ludhiana', 'Coimbatore', 'Agra', 'Meerut',
+            'Vishakhapatnam', 'Varanasi', 'Srinagar', 'Chandigarh', 'Amritsar',
+            'Mysuru', 'Kochi', 'Thiruvananthapuram', 'Bhubaneswar', 'Guwahati',
+            # Indian states / UTs
+            'Uttar Pradesh', 'Maharashtra', 'Bihar', 'West Bengal', 'Madhya Pradesh',
+            'Rajasthan', 'Gujarat', 'Karnataka', 'Odisha', 'Telangana',
+            'Andhra Pradesh', 'Kerala', 'Jharkhand', 'Assam', 'Punjab',
+            'Haryana', 'Chhattisgarh', 'Uttarakhand', 'Himachal Pradesh',
+            'Tripura', 'Meghalaya', 'Manipur', 'Nagaland', 'Mizoram', 'Arunachal Pradesh',
+            'Sikkim', 'Goa', 'Ladakh', 'Jammu', 'Kashmir',
+            # Countries relevant to India
+            'India', 'Pakistan', 'China', 'Bangladesh', 'Nepal', 'Sri Lanka',
+            'Myanmar', 'Bhutan', 'United States', 'Russia', 'Israel',
         }
 
     def classify_category(self, text: str) -> Dict[str, any]:
@@ -255,13 +324,21 @@ class NLPProcessor:
             tag = f"#{word.capitalize()}"
             topics.append(tag)
 
-        # Add domain hashtag if strong signal exists
-        if any(w in text.lower() for w in ['ai', 'gpt', 'model', 'neural', 'intel']):
-            topics.insert(0, '#AI_Innovation')
-        elif any(w in text.lower() for w in ['ransomware', 'cyber', 'vulnerability', 'cve']):
+        # Add India-specific domain hashtags
+        if any(w in text.lower() for w in ['isro', 'chandrayaan', 'gaganyaan', 'aditya', 'mars orbiter']):
+            topics.insert(0, '#IndiaSpace')
+        elif any(w in text.lower() for w in ['bjp', 'congress', 'election', 'lok sabha', 'modi', 'parliament']):
+            topics.insert(0, '#IndiaPolitics')
+        elif any(w in text.lower() for w in ['sensex', 'nifty', 'rbi', 'rupee', 'gst', 'budget']):
+            topics.insert(0, '#IndiaEconomy')
+        elif any(w in text.lower() for w in ['startup', 'unicorn', 'fintech', 'upi', 'bengaluru', 'iit']):
+            topics.insert(0, '#IndiaTech')
+        elif any(w in text.lower() for w in ['fake news', 'fact check', 'debunked', 'hoax', 'misinformation']):
+            topics.insert(0, '#FactCheck')
+        elif any(w in text.lower() for w in ['ransomware', 'cyber', 'vulnerability', 'cve', 'cert-in']):
             topics.insert(0, '#CyberSecurity')
-        elif any(w in text.lower() for w in ['space', 'telescope', 'planet', 'nasa']):
-            topics.insert(0, '#SpaceScience')
+        elif any(w in text.lower() for w in ['ai', 'gpt', 'model', 'neural', 'intel']):
+            topics.insert(0, '#AI_Innovation')
 
         # Deduplicate preserving order
         seen = set()

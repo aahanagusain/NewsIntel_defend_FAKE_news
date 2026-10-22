@@ -1,11 +1,14 @@
 """
-Social Media Collector — Real News Ingestion via Reddit & NewsAPI.
+Social Media Collector — India-Focused Real News Ingestion via Multiple APIs.
 
 Sources:
-  • Reddit OAuth2 — top posts from news subreddits (no paid plan required)
-  • NewsAPI       — top headlines by category  (requires NEWSAPI_KEY, free 100 req/day)
+  • Reddit OAuth2      — top posts from India-focused subreddits (free)
+  • NewsAPI            — top Indian headlines (country=in, free 100 req/day)
+  • NewsData.io        — India news search (free 200 req/day, NEWSDATA_KEY)
+  • GNews API          — India top headlines (free 100 req/day, GNEWS_KEY)
+  • Currents API       — India latest news (free 600 req/day, CURRENTS_KEY)
 
-Both sources fail-gracefully: if credentials are absent or the network is
+All sources fail-gracefully: if credentials are absent or the network is
 unavailable the collector simply returns an empty list and logs a debug message.
 """
 
@@ -26,24 +29,24 @@ logger = logging.getLogger(__name__)
 REDDIT_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 REDDIT_API_BASE  = "https://oauth.reddit.com"
 
-# Subreddits that surface real, sourced news with external URLs
+# India-focused subreddits that surface real, sourced Indian news
 REDDIT_NEWS_SUBREDDITS = [
-    ("worldnews",      "International"),
-    ("technology",     "Technology"),
-    ("science",        "Science"),
-    ("politics",       "Politics"),
-    ("netsec",         "Cybersecurity"),
-    ("business",       "Business"),
-    ("unitedstates",   "National"),
+    ("india",          "National"),
+    ("IndiaSpeaks",    "Politics"),
+    ("indianews",      "National"),
+    ("IndiaInvestments", "Business"),
+    ("developersIndia", "Technology"),
+    ("IndianDefense",  "National"),
+    ("worldnews",      "International"),   # kept for India-related global coverage
 ]
 
-# NewsAPI category → our internal category mapping
+# NewsAPI category → our internal category mapping (country=in applied at fetch time)
 NEWSAPI_CATEGORIES = {
-    "technology":  "Technology",
-    "science":     "Science",
-    "business":    "Business",
-    "health":      "National",
-    "general":     "International",
+    "technology":    "Technology",
+    "science":       "Science",
+    "business":      "Business",
+    "health":        "National",
+    "general":       "National",
     "entertainment": "National",
 }
 
@@ -213,7 +216,7 @@ class NewsAPICollector:
         self.api_key = api_key
 
     def fetch_category(self, category: str, internal_category: str, page_size: int = 5) -> List[Dict]:
-        """Pull top headlines for a given category."""
+        """Pull top Indian headlines for a given category."""
         if not self.api_key:
             return []
 
@@ -223,6 +226,7 @@ class NewsAPICollector:
                 params={
                     "apiKey":   self.api_key,
                     "category": category,
+                    "country":  "in",          # ← India-only headlines
                     "language": "en",
                     "pageSize": page_size,
                 },
@@ -288,20 +292,291 @@ class NewsAPICollector:
         return all_articles, ""
 
 
+
+
+class IndianNewsAPICollector:
+    """
+    Collector for three additional free Indian news APIs:
+
+    1. NewsData.io  — https://newsdata.io/  (free: 200 req/day, country=in)
+       Register at: https://newsdata.io/register
+       Env var: NEWSDATA_KEY
+
+    2. GNews API    — https://gnews.io/     (free: 100 req/day, country=in)
+       Register at: https://gnews.io/register
+       Env var: GNEWS_KEY
+
+    3. Currents API — https://currentsapi.services/ (free: 600 req/day, country=IN)
+       Register at: https://currentsapi.services/en/register
+       Env var: CURRENTS_KEY
+
+    All three degrade gracefully — absent key → empty result, no crash.
+    """
+
+    NEWSDATA_URL  = "https://newsdata.io/api/1/latest"
+    GNEWS_URL     = "https://gnews.io/api/v4/top-headlines"
+    CURRENTS_URL  = "https://api.currentsapi.services/v1/latest-news"
+
+    # NewsData.io categories supported (maps to our internal cats)
+    NEWSDATA_CATEGORIES = {
+        "top":           "National",
+        "politics":      "Politics",
+        "business":      "Business",
+        "technology":    "Technology",
+        "science":       "Science",
+        "health":        "National",
+        "entertainment": "National",
+        "sports":        "National",
+        "world":         "International",
+        "crime":         "National",
+    }
+
+    # GNews topics (maps to internal cats)
+    GNEWS_TOPICS = {
+        "general":       "National",
+        "world":         "International",
+        "nation":        "National",
+        "business":      "Business",
+        "technology":    "Technology",
+        "entertainment": "National",
+        "sports":        "National",
+        "science":       "Science",
+        "health":        "National",
+    }
+
+    def __init__(self, newsdata_key: str, gnews_key: str, currents_key: str):
+        self.newsdata_key  = newsdata_key
+        self.gnews_key     = gnews_key
+        self.currents_key  = currents_key
+
+    # ------------------------------------------------------------------
+    # NewsData.io
+    # ------------------------------------------------------------------
+
+    def fetch_newsdata(self, articles_per_cat: int = 4) -> Tuple[List[Dict], str]:
+        """Fetch from NewsData.io — India news, English, multiple categories."""
+        if not self.newsdata_key:
+            return [], "NEWSDATA_KEY not configured"
+
+        all_articles: List[Dict] = []
+        for newsdata_cat, internal_cat in self.NEWSDATA_CATEGORIES.items():
+            try:
+                resp = requests.get(
+                    self.NEWSDATA_URL,
+                    params={
+                        "apikey":   self.newsdata_key,
+                        "country":  "in",
+                        "language": "en",
+                        "category": newsdata_cat,
+                    },
+                    timeout=8,
+                )
+                if resp.status_code != 200:
+                    logger.debug("NewsData.io [%s] HTTP %s", newsdata_cat, resp.status_code)
+                    continue
+
+                for art in resp.json().get("results", [])[:articles_per_cat]:
+                    title   = (art.get("title")       or "").strip()
+                    content = (art.get("description") or art.get("content") or "").strip()
+                    url     = (art.get("link")         or "").strip()
+                    source  = (art.get("source_id")    or "NewsData India").strip()
+                    author  = (art.get("creator")      or ["Staff Reporter"])[0] if art.get("creator") else "Staff Reporter"
+                    pub_at  = art.get("pubDate") or datetime.now().isoformat()
+
+                    if len(title) < 10 or not url:
+                        continue
+
+                    all_articles.append({
+                        "title":     title,
+                        "content":   content or title,
+                        "source":    source,
+                        "author":    author,
+                        "category":  internal_cat,
+                        "url":       url,
+                        "timestamp": pub_at,
+                        "_origin":   "newsdata",
+                    })
+
+                time.sleep(0.15)
+
+            except Exception as exc:
+                logger.debug("NewsData.io category %s error: %s", newsdata_cat, exc)
+
+        return all_articles, ""
+
+    # ------------------------------------------------------------------
+    # GNews API
+    # ------------------------------------------------------------------
+
+    def fetch_gnews(self, articles_per_topic: int = 4) -> Tuple[List[Dict], str]:
+        """Fetch from GNews API — India top headlines, English."""
+        if not self.gnews_key:
+            return [], "GNEWS_KEY not configured"
+
+        all_articles: List[Dict] = []
+        for gnews_topic, internal_cat in self.GNEWS_TOPICS.items():
+            try:
+                resp = requests.get(
+                    self.GNEWS_URL,
+                    params={
+                        "token":    self.gnews_key,
+                        "topic":    gnews_topic,
+                        "country":  "in",
+                        "lang":     "en",
+                        "max":      articles_per_topic,
+                    },
+                    timeout=8,
+                )
+                if resp.status_code != 200:
+                    logger.debug("GNews [%s] HTTP %s", gnews_topic, resp.status_code)
+                    continue
+
+                for art in resp.json().get("articles", []):
+                    title   = (art.get("title")       or "").strip()
+                    content = (art.get("description") or art.get("content") or "").strip()
+                    url     = (art.get("url")          or "").strip()
+                    source  = art.get("source", {}).get("name", "GNews India")
+                    pub_at  = art.get("publishedAt") or datetime.now().isoformat()
+
+                    if len(title) < 10 or not url:
+                        continue
+
+                    all_articles.append({
+                        "title":     title,
+                        "content":   content or title,
+                        "source":    source,
+                        "author":    "Staff Reporter",
+                        "category":  internal_cat,
+                        "url":       url,
+                        "timestamp": pub_at,
+                        "_origin":   "gnews",
+                    })
+
+                time.sleep(0.15)
+
+            except Exception as exc:
+                logger.debug("GNews topic %s error: %s", gnews_topic, exc)
+
+        return all_articles, ""
+
+    # ------------------------------------------------------------------
+    # Currents API
+    # ------------------------------------------------------------------
+
+    def fetch_currents(self, max_articles: int = 20) -> Tuple[List[Dict], str]:
+        """Fetch from Currents API — India latest news, English."""
+        if not self.currents_key:
+            return [], "CURRENTS_KEY not configured"
+
+        try:
+            resp = requests.get(
+                self.CURRENTS_URL,
+                params={
+                    "apiKey":   self.currents_key,
+                    "country":  "IN",
+                    "language": "en",
+                },
+                timeout=8,
+            )
+            if resp.status_code != 200:
+                logger.debug("Currents API HTTP %s: %s", resp.status_code, resp.text[:100])
+                return [], f"Currents API HTTP {resp.status_code}"
+
+            articles_raw = resp.json().get("news", [])[:max_articles]
+            articles: List[Dict] = []
+            for art in articles_raw:
+                title    = (art.get("title")       or "").strip()
+                content  = (art.get("description") or "").strip()
+                url      = (art.get("url")          or "").strip()
+                author   = (art.get("author")       or "Staff Reporter").strip()
+                pub_at   = art.get("published") or datetime.now().isoformat()
+                # Map Currents category list to our internal categories
+                cats     = art.get("category", [])
+                internal_cat = "National"
+                if cats:
+                    cat_map = {
+                        "politics": "Politics", "business": "Business",
+                        "technology": "Technology", "science": "Science",
+                        "world": "International", "national": "National",
+                        "entertainment": "National", "health": "National",
+                        "sports": "National",
+                    }
+                    for c in cats:
+                        if c.lower() in cat_map:
+                            internal_cat = cat_map[c.lower()]
+                            break
+
+                if len(title) < 10 or not url or url == "N/A":
+                    continue
+
+                articles.append({
+                    "title":     title,
+                    "content":   content or title,
+                    "source":    "Currents India",
+                    "author":    author,
+                    "category":  internal_cat,
+                    "url":       url,
+                    "timestamp": pub_at,
+                    "_origin":   "currents",
+                })
+
+            return articles, ""
+
+        except Exception as exc:
+            logger.debug("Currents API error: %s", exc)
+            return [], str(exc)
+
+    def collect(self, articles_per_source: int = 5) -> Tuple[List[Dict], Dict[str, str]]:
+        """
+        Collect from all three Indian news APIs.
+        Returns (combined_articles, {source: error_msg}).
+        """
+        combined: List[Dict] = []
+        errors: Dict[str, str] = {}
+
+        nd_arts, nd_err = self.fetch_newsdata(articles_per_cat=articles_per_source)
+        if nd_err:
+            errors["newsdata"] = nd_err
+        else:
+            combined.extend(nd_arts)
+
+        gn_arts, gn_err = self.fetch_gnews(articles_per_topic=articles_per_source)
+        if gn_err:
+            errors["gnews"] = gn_err
+        else:
+            combined.extend(gn_arts)
+
+        cu_arts, cu_err = self.fetch_currents(max_articles=articles_per_source * 4)
+        if cu_err:
+            errors["currents"] = cu_err
+        else:
+            combined.extend(cu_arts)
+
+        return combined, errors
+
+
 class SocialMediaCollector:
     """
-    Unified façade that orchestrates Reddit and NewsAPI collectors.
+    Unified façade that orchestrates all five Indian news sources:
+    Reddit, NewsAPI, NewsData.io, GNews, and Currents API.
     Exposes collect() and source_status().
     """
 
     def __init__(self):
+        # --- Reddit ---
         reddit_id     = os.getenv("REDDIT_CLIENT_ID", "")
         reddit_secret = os.getenv("REDDIT_CLIENT_SECRET", "")
         reddit_agent  = os.getenv("REDDIT_USER_AGENT", "dEFEND-News-Collector/1.0")
+        # --- NewsAPI ---
         newsapi_key   = os.getenv("NEWSAPI_KEY", "")
+        # --- Three new Indian news APIs ---
+        newsdata_key  = os.getenv("NEWSDATA_KEY", "")
+        gnews_key     = os.getenv("GNEWS_KEY", "")
+        currents_key  = os.getenv("CURRENTS_KEY", "")
 
-        self._reddit  = RedditCollector(reddit_id, reddit_secret, reddit_agent)
-        self._newsapi = NewsAPICollector(newsapi_key)
+        self._reddit      = RedditCollector(reddit_id, reddit_secret, reddit_agent)
+        self._newsapi     = NewsAPICollector(newsapi_key)
+        self._india_apis  = IndianNewsAPICollector(newsdata_key, gnews_key, currents_key)
 
         self._source_status: Dict[str, Dict] = {
             "reddit": {
@@ -318,6 +593,27 @@ class SocialMediaCollector:
                 "articles_total": 0,
                 "error":          None if newsapi_key else "NEWSAPI_KEY not set",
             },
+            "newsdata": {
+                "active":         bool(newsdata_key),
+                "configured":     bool(newsdata_key),
+                "last_fetch":     None,
+                "articles_total": 0,
+                "error":          None if newsdata_key else "NEWSDATA_KEY not set",
+            },
+            "gnews": {
+                "active":         bool(gnews_key),
+                "configured":     bool(gnews_key),
+                "last_fetch":     None,
+                "articles_total": 0,
+                "error":          None if gnews_key else "GNEWS_KEY not set",
+            },
+            "currents": {
+                "active":         bool(currents_key),
+                "configured":     bool(currents_key),
+                "last_fetch":     None,
+                "articles_total": 0,
+                "error":          None if currents_key else "CURRENTS_KEY not set",
+            },
         }
 
     # ------------------------------------------------------------------
@@ -326,39 +622,62 @@ class SocialMediaCollector:
 
     def collect(self, posts_per_source: int = 5) -> List[Dict]:
         """
-        Pull real news articles from all configured social media sources.
-        Returns a combined, deduplicated list of raw article dicts.
+        Pull real Indian news articles from all configured sources.
+        Returns a combined list of raw article dicts.
         """
         combined: List[Dict] = []
+        now = datetime.now().isoformat()
 
         # --- Reddit ---
         reddit_articles, reddit_err = self._reddit.collect(posts_per_subreddit=posts_per_source)
-        self._source_status["reddit"]["last_fetch"] = datetime.now().isoformat()
+        self._source_status["reddit"]["last_fetch"] = now
         if reddit_err:
             self._source_status["reddit"]["error"]  = reddit_err
             self._source_status["reddit"]["active"] = False
         else:
-            self._source_status["reddit"]["error"]         = None
-            self._source_status["reddit"]["active"]        = True
+            self._source_status["reddit"]["error"]          = None
+            self._source_status["reddit"]["active"]         = True
             self._source_status["reddit"]["articles_total"] += len(reddit_articles)
             combined.extend(reddit_articles)
             logger.info("Reddit: fetched %d articles", len(reddit_articles))
 
         # --- NewsAPI ---
         newsapi_articles, newsapi_err = self._newsapi.collect(articles_per_category=posts_per_source)
-        self._source_status["newsapi"]["last_fetch"] = datetime.now().isoformat()
+        self._source_status["newsapi"]["last_fetch"] = now
         if newsapi_err:
             self._source_status["newsapi"]["error"]  = newsapi_err
             self._source_status["newsapi"]["active"] = False
         else:
-            self._source_status["newsapi"]["error"]         = None
-            self._source_status["newsapi"]["active"]        = True
+            self._source_status["newsapi"]["error"]          = None
+            self._source_status["newsapi"]["active"]         = True
             self._source_status["newsapi"]["articles_total"] += len(newsapi_articles)
             combined.extend(newsapi_articles)
             logger.info("NewsAPI: fetched %d articles", len(newsapi_articles))
+
+        # --- NewsData.io + GNews + Currents ---
+        india_articles, india_errors = self._india_apis.collect(articles_per_source=posts_per_source)
+        for source_key in ("newsdata", "gnews", "currents"):
+            self._source_status[source_key]["last_fetch"] = now
+            if source_key in india_errors:
+                self._source_status[source_key]["error"]  = india_errors[source_key]
+                self._source_status[source_key]["active"] = False
+            else:
+                self._source_status[source_key]["error"]  = None
+                self._source_status[source_key]["active"] = self._source_status[source_key]["configured"]
+
+        # Count per-source article additions
+        for art in india_articles:
+            origin = art.get("_origin", "")
+            if origin in self._source_status:
+                self._source_status[origin]["articles_total"] += 1
+
+        combined.extend(india_articles)
+        if india_articles:
+            logger.info("Indian APIs (NewsData/GNews/Currents): fetched %d articles", len(india_articles))
 
         return combined
 
     def source_status(self) -> Dict[str, Dict]:
         """Return per-source status information for the /api/news/sources endpoint."""
         return dict(self._source_status)
+
