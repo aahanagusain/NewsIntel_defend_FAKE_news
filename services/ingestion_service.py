@@ -41,7 +41,7 @@ class IngestionService:
         self.user_preferences = {
             'active_categories': [
                 'Technology', 'Politics', 'National', 'International',
-                'Business', 'Science', 'Cybersecurity'
+                'Business', 'Science', 'Cybersecurity', 'Sports', 'Entertainment'
             ],
             'alert_sensitivity': 'Medium',  # Low, Medium, High
             'min_risk_alert': 65,
@@ -50,18 +50,34 @@ class IngestionService:
             'enable_breaking_alerts': True
         }
 
-        # Initialize with seed articles
+        # Initialize with seed articles and start continuous background live fetcher
+        threading.Thread(target=self._start_background_worker, daemon=True).start()
+
+    def _start_background_worker(self):
+        """Initial bootstrap followed by continuous live polling every 15 seconds."""
         self._initialize_corpus()
+        logger.info("Continuous live news polling daemon active (15s interval).")
+        while True:
+            time.sleep(15)
+            try:
+                added = self.ingest_new_batch()
+                if added > 0:
+                    logger.info("Live Ingestion daemon pulled %d fresh news items", added)
+            except Exception as e:
+                logger.debug("Background poll error: %s", e)
 
     def _initialize_corpus(self):
         """Bootstrap initial corpus from live RSS, GDELT, Reddit, and NewsAPI feeds."""
-        logger.info("Bootstrapping live news corpus — this may take a few seconds…")
-        initial = self.collector.collect_bootstrap_corpus()
-        with self._lock:
-            self.articles.extend(initial)
-            self._stats['total_ingested'] = len(self.articles)
-            self._stats['last_ingest_time'] = datetime.now().isoformat()
-        logger.info("Ingestion Service ready with %d live articles", len(self.articles))
+        logger.info("Bootstrapping live news corpus in background...")
+        try:
+            initial = self.collector.collect_bootstrap_corpus()
+            with self._lock:
+                self.articles.extend(initial)
+                self._stats['total_ingested'] = len(self.articles)
+                self._stats['last_ingest_time'] = datetime.now().isoformat()
+            logger.info("Ingestion Service ready with %d live articles", len(self.articles))
+        except Exception as e:
+            logger.warning(f"Error bootstrapping corpus: {e}")
 
     def ingest_new_batch(self) -> int:
         """Trigger ingestion pull from registered feeds and public APIs."""
@@ -153,7 +169,7 @@ class IngestionService:
             'category_counts': cat_counts,
             'risk_distribution': risk_distribution,
             'average_risk_score': avg_risk,
-            'active_sources': len(self.collector.registered_feeds) + 2
+            'active_sources': len(self.collector.registered_feeds) + 5  # RSS + 5 API sources
         }
 
     def get_user_preferences(self) -> Dict:
