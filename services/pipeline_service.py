@@ -11,6 +11,8 @@ from typing import Dict, List
 
 import random
 
+logger = logging.getLogger(__name__)
+
 try:
     import torch
     from models.defend_bilstm import DEFENDModel
@@ -28,9 +30,6 @@ from models.claim_extractor import ClaimExtractor
 from models.evidence_retriever import EvidenceRetriever
 from models.claim_verifier import ClaimVerifier
 from data.data_loader import DatasetLoader
-
-logger = logging.getLogger(__name__)
-
 
 class PipelineService:
     def __init__(self):
