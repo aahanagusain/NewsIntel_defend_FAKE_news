@@ -6,7 +6,7 @@ z-score burstiness detection, and real-time alert/insight synthesis.
 
 import math
 from datetime import datetime, timedelta
-from collections import defaultdict, deque
+from collections import defaultdict, deque, Counter
 from typing import Dict, List, Optional, Tuple
 
 
@@ -26,7 +26,9 @@ class EmergingDetector:
             'International': 9.0,
             'Business': 7.0,
             'Science': 5.0,
-            'Cybersecurity': 4.0
+            'Cybersecurity': 4.0,
+            'Sports': 8.0,
+            'Entertainment': 6.0
         }
         # Baseline std dev
         self.baseline_stds = {
@@ -36,7 +38,9 @@ class EmergingDetector:
             'International': 2.5,
             'Business': 2.0,
             'Science': 1.5,
-            'Cybersecurity': 1.2
+            'Cybersecurity': 1.2,
+            'Sports': 2.5,
+            'Entertainment': 2.0
         }
 
     def record_event(self, article: Dict):

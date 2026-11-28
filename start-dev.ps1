@@ -6,9 +6,9 @@ $frontendPath = Join-Path $scriptDir "frontend"
 $pythonExe = "c:\Users\soura\Desktop\Fake-News-Detection-System-main\backend\venv310\Scripts\python.exe"
 
 Write-Host "🚀 Starting dEFEND Backend Server on Port 5001..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$backendPath'; & '$pythonExe' app.py"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$env:PYTHONPATH='$scriptDir;$backendPath'; cd '$backendPath'; & '$pythonExe' app.py"
 
-Start-Sleep -Seconds 4
+Start-Sleep -Seconds 3
 
 Write-Host "🎨 Starting dEFEND Frontend Server on Port 3001..." -ForegroundColor Yellow
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$frontendPath'; npm run dev"

@@ -97,7 +97,7 @@ class LocalVectorRetriever(AbstractEvidenceRetriever):
                 results.sort(key=lambda x: x['similarity_score'], reverse=True)
                 return results[:top_k]
 
-            except ImportError:
+            except (ImportError, OSError):
                 # Fallback to Jaccard similarity if sklearn is loading
                 results = []
                 for p in self.passages:

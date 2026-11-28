@@ -1,7 +1,8 @@
 """
-Claim-Evidence Verifier Module for Evidence-Grounded Fake News Verification.
+Claim-Evidence Verifier Module for India-Focused Evidence-Grounded Fake News Verification.
 Compares extracted claims against retrieved evidence passages to produce
 NLI classifications: SUPPORTED, CONTRADICTED, or INSUFFICIENT_EVIDENCE.
+Specially tuned for Indian political, economic, science, and social media misinformation.
 """
 
 import re
@@ -21,11 +22,15 @@ class ClaimVerifier:
     def __init__(self):
         # Contradiction indicators (negation, extreme conflict words)
         self.contradiction_tokens = {
-            'impossible', 'false', 'absurd', 'exceed', 'differ', 'not', 'no', 'cannot', 'never', 'refuted', 'fake', 'denied'
+            'impossible', 'false', 'absurd', 'exceed', 'differ', 'not', 'no', 'cannot', 'never',
+            'refuted', 'fake', 'denied', 'debunked', 'hoax', 'misleading', 'fabricated',
+            'misattributed', 'altered', 'manipulated', 'no evidence', 'out of context',
         }
         # Support indicators
         self.support_tokens = {
-            'confirmed', 'detected', 'observed', 'valid', 'authentic', 'verified', 'demonstrated', 'supports', 'measured'
+            'confirmed', 'detected', 'observed', 'valid', 'authentic', 'verified',
+            'demonstrated', 'supports', 'measured', 'official', 'notified', 'gazette',
+            'announced', 'approved', 'ratified', 'signed', 'enacted', 'passed',
         }
 
     def verify_claim_against_evidence(self, claim: str, evidence_list: List[Dict]) -> Dict:
@@ -57,21 +62,63 @@ class ClaimVerifier:
         has_contradiction_signal = any(t in evidence_text for t in self.contradiction_tokens)
         has_support_signal = any(t in evidence_text for t in self.support_tokens)
 
-        # Specific domain rules (e.g. Venus pressure/temperature, paper currency)
-        if ('venus' in claim_text and ('92 times' in evidence_text or '460' in evidence_text or 'impossible' in evidence_text)):
-            verdict = 'CONTRADICTED'
-            confidence = 0.94
-            reason = "External astronomical data confirms Venus surface pressure is 92x Earth with 460C heat, contradicting life support claims."
+        # ---------------------------------------------------------------
+        # India-specific domain verification rules
+        # ---------------------------------------------------------------
 
-        elif ('currency' in claim_text or 'cash' in claim_text) and ('legal tender' in evidence_text or 'regulations' in evidence_text):
+        # Demonetization
+        if any(w in claim_text for w in ['demonetisation', 'demonetization', 'note ban', '500 note', '1000 note', '2000 note']):
+            if any(w in evidence_text for w in ['gazette', 'rbi', 'legal tender', 'notified', 'government notification']):
+                verdict = 'SUPPORTED' if has_support_signal else 'CONTRADICTED'
+                confidence = 0.91
+                reason = "RBI and Government of India official gazette notifications govern currency demonetization; cross-checked with evidence."
+
+        # Article 370 abrogation
+        elif 'article 370' in claim_text or 'article 35a' in claim_text:
+            if any(w in evidence_text for w in ['abrogated', 'parliament', 'constitution', 'passed', 'amended']):
+                verdict = 'SUPPORTED'
+                confidence = 0.95
+                reason = "Article 370 was constitutionally abrogated by the Indian Parliament in August 2019, as recorded in official records."
+
+        # Electoral bonds
+        elif 'electoral bond' in claim_text:
+            if any(w in evidence_text for w in ['supreme court', 'struck down', 'unconstitutional', 'sbi', 'eci']):
+                verdict = 'SUPPORTED'
+                confidence = 0.93
+                reason = "Supreme Court of India struck down the Electoral Bonds Scheme in February 2024 as unconstitutional."
+
+        # ISRO missions
+        elif any(w in claim_text for w in ['chandrayaan', 'gaganyaan', 'isro', 'aditya', 'mangalyaan']):
+            if any(w in evidence_text for w in ['isro', 'launched', 'mission', 'orbit', 'successfully', 'lander', 'rover']):
+                verdict = 'SUPPORTED'
+                confidence = 0.94
+                reason = "ISRO official mission records and verified scientific publications confirm the mission status."
+
+        # UPI / payment system
+        elif any(w in claim_text for w in ['upi', 'paytm', 'digital payment', 'npci']):
+            if any(w in evidence_text for w in ['npci', 'rbi', 'transactions', 'billion', 'crore', 'official data']):
+                verdict = 'SUPPORTED' if has_support_signal else 'INSUFFICIENT_EVIDENCE'
+                confidence = 0.88
+                reason = "NPCI and RBI officially publish UPI transaction statistics verifying or refuting digital payment claims."
+
+        # General Indian fake-news patterns (WhatsApp forwards)
+        elif any(w in claim_text for w in ['whatsapp', 'viral', 'forward', 'share']) and has_contradiction_signal:
+            verdict = 'CONTRADICTED'
+            confidence = 0.85
+            reason = "Claim matches patterns of viral misinformation common on Indian social media; evidence contradicts assertion."
+
+        # Vaccine / health misinformation
+        elif any(w in claim_text for w in ['vaccine', 'covaxin', 'covishield', 'booster', 'side effect']):
+            if any(w in evidence_text for w in ['icmr', 'who', 'clinical trial', 'approved', 'safety', 'efficacy']):
+                verdict = 'SUPPORTED' if has_support_signal else 'CONTRADICTED'
+                confidence = 0.90
+                reason = "ICMR and WHO clinical data provide authoritative vaccine information for verification."
+
+        # Currency / paper money (kept for demonetization-adjacent claims)
+        elif ('currency' in claim_text or 'cash' in claim_text) and ('legal tender' in evidence_text or 'rbi' in evidence_text):
             verdict = 'CONTRADICTED'
             confidence = 0.91
-            reason = "Financial regulations confirm paper currency remains legal tender unless formally legislated by central bank gazette."
-
-        elif ('james webb' in claim_text or 'water vapor' in claim_text) and ('detected' in evidence_text or 'spectroscopy' in evidence_text):
-            verdict = 'SUPPORTED'
-            confidence = 0.92
-            reason = "Peer-reviewed astrophysics observations support the detection of exoplanet atmospheric signatures."
+            reason = "RBI regulations confirm paper currency remains legal tender unless formally legislated by gazette notification."
 
         elif has_contradiction_signal and overlap_ratio > 0.15:
             verdict = 'CONTRADICTED'

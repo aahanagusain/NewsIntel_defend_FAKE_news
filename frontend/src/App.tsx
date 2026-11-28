@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { IndiaPoliticalMapBg } from './IndiaPoliticalMapBg';
 
 const API_BASE_URL = 'http://localhost:5001/api';
 
@@ -9,12 +10,14 @@ const ALL_CATEGORIES = [
   'International',
   'Business',
   'Science',
-  'Cybersecurity'
+  'Cybersecurity',
+  'Sports',
+  'Entertainment'
 ];
 
 export default function App() {
-  // Navigation
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'url-analysis' | 'emerging' | 'verify' | 'benchmark'>('dashboard');
+  // Navigation: 'home' (Overview/Mission Control), 'live-news' (Live Ingestion Stream), 'url-analysis', 'emerging', 'verify', 'benchmark'
+  const [activeTab, setActiveTab] = useState<'home' | 'live-news' | 'url-analysis' | 'emerging' | 'verify' | 'benchmark'>('home');
 
   // --- Real-time News Dashboard State ---
   const [newsArticles, setNewsArticles] = useState<any[]>([]);
@@ -88,12 +91,12 @@ export default function App() {
       })
       .catch(err => console.log('Preferences offline:', err));
 
-    // Auto-refresh interval for real-time news (every 30s)
+    // Fast auto-refresh interval for real-time news (every 5 seconds)
     const interval = setInterval(() => {
       fetchDashboardData(true);
       fetchEmergingAndAlerts();
       fetchSourceStatus();
-    }, 30000);
+    }, 5000);
 
     // Global keyboard shortcut for Command Palette (Ctrl+K or Cmd+K)
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -321,6 +324,8 @@ export default function App() {
       case 'Business': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
       case 'International': return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
       case 'National': return 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+      case 'Sports': return 'bg-teal-500/10 text-teal-400 border-teal-500/30';
+      case 'Entertainment': return 'bg-pink-500/10 text-pink-400 border-pink-500/30';
       default: return 'bg-slate-500/10 text-slate-400 border-slate-500/30';
     }
   };
@@ -356,9 +361,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative selection:bg-orange-500 selection:text-white">
+      {/* Complete Non-Interactive Political Map of India */}
+      <IndiaPoliticalMapBg />
+
       {/* TOP NAVIGATION BAR */}
-      <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-6 py-3.5 shadow-xl">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 px-6 py-3.5 shadow-xl relative">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
           {/* Logo & Platform Info */}
@@ -385,12 +393,21 @@ export default function App() {
           {/* Navigation Tabs */}
           <div className="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-xs font-semibold overflow-x-auto max-w-full">
             <button
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => setActiveTab('home')}
               className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                activeTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+                activeTab === 'home' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <i className="ri-dashboard-3-line"></i> News Intelligence
+              <i className="ri-home-4-line"></i> Home Screen
+            </button>
+            <button
+              onClick={() => setActiveTab('live-news')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                activeTab === 'live-news' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <i className="ri-broadcast-line text-cyan-400"></i> Live News Feed
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping ml-0.5"></span>
             </button>
             <button
               onClick={() => setActiveTab('url-analysis')}
@@ -398,7 +415,7 @@ export default function App() {
                 activeTab === 'url-analysis' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <i className="ri-links-line"></i> URL Analysis Studio
+              <i className="ri-links-line"></i> URL Verification
             </button>
             <button
               onClick={() => setActiveTab('emerging')}
@@ -406,7 +423,7 @@ export default function App() {
                 activeTab === 'emerging' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <i className="ri-pulse-line"></i> Emerging & Alerts
+              <i className="ri-pulse-line"></i> Emerging Spikes
               {liveAlerts.length > 0 && (
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
               )}
@@ -474,342 +491,416 @@ export default function App() {
       )}
 
       {/* MAIN VIEWPORT */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
-
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6 relative z-10">
         {/* ----------------------------------------------------------------- */}
-        {/* TAB 1: REAL-TIME NEWS INTELLIGENCE DASHBOARD                      */}
+        {/* TAB 1: HOME SCREEN (MISSION CONTROL & OVERVIEW)                   */}
         {/* ----------------------------------------------------------------- */}
-        {activeTab === 'dashboard' && (
-          <div className="space-y-6 animate-fadeIn">
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 1: HOME SCREEN (WELCOME & SYSTEM STATUS)                      */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'home' && (
+          <div className="space-y-8 animate-fadeIn max-w-6xl mx-auto py-2">
 
-            {/* Quick Interactive Breadcrumb & Page Traversal Ribbon */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2 text-slate-400">
-                <span className="flex items-center gap-1.5 font-semibold text-slate-300">
-                  <i className="ri-compass-3-line text-indigo-400 text-sm"></i> Platform Hub
-                </span>
-                <span className="text-slate-600">/</span>
-                <span className="text-indigo-400 font-bold">Live News Intelligence Feed</span>
-              </div>
+            {/* WELCOME HERO BANNER */}
+            <div className="bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-indigo-950/40 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-md">
+              {/* Subtle ambient lighting accent */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-              {/* Instant Page Switcher Shortcuts */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-slate-500 font-medium hidden sm:inline">Jump to:</span>
-                <button
-                  onClick={() => setActiveTab('url-analysis')}
-                  className="px-3 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer font-medium"
-                >
-                  <i className="ri-links-line text-cyan-400"></i> URL Studio
-                </button>
-                <button
-                  onClick={() => setActiveTab('emerging')}
-                  className="px-3 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer font-medium"
-                >
-                  <i className="ri-pulse-line text-amber-400"></i> Emerging & Alerts ({liveAlerts.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('verify')}
-                  className="px-3 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer font-medium"
-                >
-                  <i className="ri-search-eye-line text-purple-400"></i> Co-Attention Heatmap
-                </button>
-                <button
-                  onClick={() => setActiveTab('benchmark')}
-                  className="px-3 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer font-medium"
-                >
-                  <i className="ri-bar-chart-box-line text-emerald-400"></i> Benchmarks
-                </button>
-              </div>
-            </div>
+              <div className="relative z-10 space-y-6">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                    <i className="ri-shield-check-line text-indigo-400"></i>
+                    dEFEND India Fact-Checking Intelligence
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Live Feeds Polling Active
+                  </span>
+                </div>
 
-            {/* HERO MISSION CONTROL & QUICK NAVIGATION PORTALS */}
-            <div className="bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden space-y-5">
-              {/* Background ambient decorative glow */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                      Mission Control • Quick Action Portals
-                    </span>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 7 Feeds Active
-                    </span>
-                  </div>
-                  <h2 className="text-xl md:text-2xl font-black text-white mt-1.5 tracking-tight">
-                    Real-Time News Verification & Intelligence Hub
-                  </h2>
-                  <p className="text-xs text-slate-400 max-w-2xl mt-1">
-                    Continuously ingests multi-source authorized APIs and RSS feeds, cleans, deduplicates, and evaluates explainable misinformation-risk scores with external evidence corroboration.
+                <div className="space-y-3 max-w-3xl">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                    Welcome to <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-sky-300 bg-clip-text text-transparent">dEFEND Hub</span>
+                  </h1>
+                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+                    Automated real-time news aggregation, cross-source fact-checking, and explainable AI misinformation verification across Indian national and regional press.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Primary Quick Start Action Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={() => setActiveTab('live-news')}
+                    className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white font-bold text-sm rounded-2xl shadow-xl shadow-cyan-600/25 transition-all flex items-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
+                  >
+                    <i className="ri-broadcast-line text-lg"></i>
+                    <span>Browse Live News Feed</span>
+                    <span className="bg-cyan-950/60 text-cyan-200 text-xs px-2 py-0.5 rounded-full border border-cyan-400/30">
+                      {newsArticles.length} Live
+                    </span>
+                  </button>
+
                   <button
                     onClick={() => setActiveTab('url-analysis')}
-                    className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-3 bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-sm rounded-2xl border border-slate-700/80 shadow-lg transition-all flex items-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
                   >
-                    <i className="ri-add-circle-line text-sm"></i> Verify New URL
+                    <i className="ri-links-line text-indigo-400 text-lg"></i>
+                    <span>Verify a News URL / Claim</span>
                   </button>
+
                   <button
-                    onClick={() => setShowPrefsModal(true)}
-                    className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer"
+                    onClick={() => setActiveTab('emerging')}
+                    className="px-5 py-3 bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white font-medium text-sm rounded-2xl border border-slate-800 transition-all flex items-center gap-2 cursor-pointer"
                   >
-                    <i className="ri-equalizer-line"></i> Customize
+                    <i className="ri-pulse-line text-amber-400"></i>
+                    <span>Emerging Spikes</span>
+                    {liveAlerts.length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    )}
                   </button>
                 </div>
               </div>
-
-              {/* 4 Quick Traversal Launchpad Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10 pt-1">
-                
-                {/* Launchpad Card 1: URL Analysis */}
-                <div
-                  onClick={() => setActiveTab('url-analysis')}
-                  className="bg-slate-950/70 hover:bg-slate-950 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-4 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-base group-hover:scale-110 transition-transform">
-                      <i className="ri-links-line"></i>
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center justify-between">
-                        <span>URL Analysis Studio</span>
-                        <i className="ri-arrow-right-up-line text-slate-500 group-hover:text-cyan-300"></i>
-                      </h3>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                        Automated scraping, summarization, claim extraction, and explainable 0–100 risk scoring.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-cyan-400 font-semibold">
-                    <span>Includes 3 Presets</span>
-                    <span>Launch Studio →</span>
-                  </div>
-                </div>
-
-                {/* Launchpad Card 2: Emerging News */}
-                <div
-                  onClick={() => setActiveTab('emerging')}
-                  className="bg-slate-950/70 hover:bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-base group-hover:scale-110 transition-transform">
-                      <i className="ri-pulse-line"></i>
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors flex items-center justify-between">
-                        <span>Emerging Spikes & Alerts</span>
-                        <i className="ri-arrow-right-up-line text-slate-500 group-hover:text-amber-300"></i>
-                      </h3>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                        Time-window velocity ($z \ge 2.5\sigma$), burstiness tracking, and real-time incident warnings.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-amber-400 font-semibold">
-                    <span>{liveAlerts.length} Active Advisories</span>
-                    <span>View Anomalies →</span>
-                  </div>
-                </div>
-
-                {/* Launchpad Card 3: dEFEND Co-Attention */}
-                <div
-                  onClick={() => setActiveTab('verify')}
-                  className="bg-slate-950/70 hover:bg-slate-950 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-4 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-base group-hover:scale-110 transition-transform">
-                      <i className="ri-brain-line"></i>
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors flex items-center justify-between">
-                        <span>dEFEND Co-Attention</span>
-                        <i className="ri-arrow-right-up-line text-slate-500 group-hover:text-purple-300"></i>
-                      </h3>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                        KDD 2019 mutual attention heatmaps between article sentences and social comments.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-purple-400 font-semibold">
-                    <span>FakeNewsNet Corpus</span>
-                    <span>Open Heatmap →</span>
-                  </div>
-                </div>
-
-                {/* Launchpad Card 4: Empirical Benchmarks */}
-                <div
-                  onClick={() => setActiveTab('benchmark')}
-                  className="bg-slate-950/70 hover:bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-base group-hover:scale-110 transition-transform">
-                      <i className="ri-bar-chart-box-line"></i>
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center justify-between">
-                        <span>Research Benchmarks</span>
-                        <i className="ri-arrow-right-up-line text-slate-500 group-hover:text-emerald-300"></i>
-                      </h3>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                        Empirical accuracy comparison (+6.2% F1 improvement) and full architectural dataflow.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-emerald-400 font-semibold">
-                    <span>93.8% Verified Accuracy</span>
-                    <span>Inspect Metrics →</span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-            
-            {/* Top Metrics Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Ingested News</span>
-                  <i className="ri-rss-fill text-indigo-400"></i>
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-white">{pipelineStats?.total_articles || newsArticles.length}</span>
-                  <span className="text-[11px] text-slate-400">articles</span>
-                </div>
-                <span className="text-[10px] text-emerald-400 flex items-center gap-1 mt-1">
-                  <i className="ri-check-line"></i> Deduplicated & Normalized
-                </span>
-              </div>
-
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Active Sources</span>
-                  <i className="ri-global-line text-cyan-400"></i>
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-white">{pipelineStats?.active_sources || 10}</span>
-                  <span className="text-[11px] text-slate-400">APIs & RSS</span>
-                </div>
-                <span className="text-[10px] text-cyan-400 flex items-center gap-1 mt-1">
-                  <i className="ri-refresh-line"></i> Live Feed Pollers
-                </span>
-              </div>
-
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Avg Risk Index</span>
-                  <i className="ri-shield-line text-amber-400"></i>
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-amber-300">{pipelineStats?.average_risk_score || '24.2'}</span>
-                  <span className="text-[11px] text-slate-400">/ 100</span>
-                </div>
-                <span className="text-[10px] text-amber-400 flex items-center gap-1 mt-1">
-                  Explainable Multi-factor
-                </span>
-              </div>
-
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 text-xs">
-                  <span>Emerging Spikes</span>
-                  <i className="ri-flashlight-line text-rose-400"></i>
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-rose-400">{emergingClusters.length}</span>
-                  <span className="text-[11px] text-slate-400">anomalies</span>
-                </div>
-                <span className="text-[10px] text-rose-400 flex items-center gap-1 mt-1">
-                  Time-window burstiness
-                </span>
-              </div>
             </div>
 
-            {/* LIVE SOURCES STATUS PANEL */}
-            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl px-5 py-4 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <i className="ri-broadcast-line text-indigo-400 text-sm"></i>
-                  <span className="text-xs font-bold text-slate-200">Live Ingestion Sources</span>
-                  <span className="text-[10px] text-slate-500">
-                    — All articles have real, verifiable source URLs
+            {/* FOCUSED STATS & HOW MANY NEWS FETCHED */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Stat 1: Total News Fetched (Hero Metric) */}
+              <div 
+                onClick={() => setActiveTab('live-news')}
+                className="bg-slate-900/85 hover:bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-3xl p-6 transition-all duration-300 shadow-lg group cursor-pointer relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <i className="ri-newspaper-line"></i>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    Auto-polling (5s)
                   </span>
                 </div>
+                <div className="mt-5 space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total News Fetched</p>
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-4xl font-black text-white tracking-tight">
+                      {pipelineStats?.total_articles || newsArticles.length}
+                    </h3>
+                    <span className="text-xs font-bold text-slate-400">articles indexed</span>
+                  </div>
+                  <p className="text-xs text-slate-400 pt-1">
+                    Continuously harvested, deduplicated, and categorized across Indian news bureaus.
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-cyan-400 group-hover:text-cyan-300">
+                  <span>Explore full news feed</span>
+                  <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                </div>
+              </div>
+
+              {/* Stat 2: Active Ingestion Feeds */}
+              <div className="bg-slate-900/85 border border-slate-800 rounded-3xl p-6 shadow-lg relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl">
+                    <i className="ri-global-line"></i>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    Operational
+                  </span>
+                </div>
+                <div className="mt-5 space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Ingestion Sources</p>
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-4xl font-black text-white tracking-tight">
+                      {pipelineStats?.active_sources || 25}
+                    </h3>
+                    <span className="text-xs font-bold text-slate-400">live channels</span>
+                  </div>
+                  <p className="text-xs text-slate-400 pt-1">
+                    Multi-publisher RSS feeds, GDELT India stream, Reddit communities, and news APIs.
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                  <span>National, Politics, Sports, Tech</span>
+                  <i className="ri-check-double-line text-emerald-400"></i>
+                </div>
+              </div>
+
+              {/* Stat 3: Verification Pipeline Engine */}
+              <div 
+                onClick={() => setActiveTab('url-analysis')}
+                className="bg-slate-900/85 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-3xl p-6 transition-all duration-300 shadow-lg group cursor-pointer relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <i className="ri-brain-line"></i>
+                  </div>
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                    dEFEND Model
+                  </span>
+                </div>
+                <div className="mt-5 space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Deep Learning Engine</p>
+                  <div className="flex items-baseline gap-2">
+                    <h3 className="text-3xl font-black text-white tracking-tight">
+                      Co-Attention NLI
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-400 pt-1">
+                    Mutual sentence-comment attention heatmaps and evidence-grounded credibility evaluation.
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs font-semibold text-indigo-400 group-hover:text-indigo-300">
+                  <span>Verify custom URL or text</span>
+                  <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                </div>
+              </div>
+            </div>
+
+            {/* LIVE INGESTION SOURCES STATUS PANEL */}
+            <div className="bg-slate-900/85 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-lg space-y-5">
+              <div className="flex flex-col sm:row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg">
+                    <i className="ri-broadcast-fill"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      Live Ingestion Sources & Data Pipelines
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Verified real-time news sources feeding the continuous analysis stream
+                    </p>
+                  </div>
+                </div>
+
                 <button
                   onClick={fetchSourceStatus}
-                  className="text-[10px] text-slate-500 hover:text-slate-300 flex items-center gap-1 cursor-pointer transition-colors"
+                  className="self-start sm:self-auto px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border border-slate-700/60"
                 >
-                  <i className="ri-refresh-line"></i> Refresh
+                  <i className="ri-refresh-line"></i>
+                  <span>Refresh Status</span>
                 </button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {/* RSS Feeds */}
-                <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-start gap-2.5">
-                  <span className="mt-0.5 w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-200">RSS Feeds</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">BBC, TechCrunch, NPR, CNBC…</p>
-                    <p className="text-[10px] text-emerald-400 mt-1 font-semibold">● Active — {sourceStatus.rss?.feeds || 8} feeds</p>
+
+              {/* 4 Ingestion Source Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* 1. Indian RSS Feeds */}
+                <div className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">Indian RSS Feeds</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-snug">
+                      The Hindu, Times of India, Indian Express, NDTV, Livemint & PTI.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                      <i className="ri-check-line"></i> Active
+                    </span>
+                    <span className="text-slate-400 font-mono text-[11px]">
+                      {sourceStatus.rss?.feeds || 15} feeds
+                    </span>
                   </div>
                 </div>
-                {/* GDELT */}
-                <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-start gap-2.5">
-                  <span className="mt-0.5 w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
-                  <div>
-                    <p className="text-[11px] font-bold text-slate-200">GDELT API</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">Global news event stream</p>
-                    <p className="text-[10px] text-emerald-400 mt-1 font-semibold">● Active — Free tier</p>
+
+                {/* 2. GDELT India */}
+                <div className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white">GDELT Project</span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-snug">
+                      Global Database of Events, Language, and Tone (India GEO filter).
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                      <i className="ri-check-line"></i> Active
+                    </span>
+                    <span className="text-slate-400 font-mono text-[11px]">Global Stream</span>
                   </div>
                 </div>
-                {/* Reddit */}
+
+                {/* 3. Reddit India */}
                 {(() => {
                   const s = sourceStatus.reddit;
                   const isActive = s?.active;
                   const isConfigured = s?.configured;
                   return (
-                    <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-start gap-2.5">
-                      <span className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${isActive ? 'bg-emerald-400 animate-pulse' : isConfigured ? 'bg-amber-400' : 'bg-slate-600'}`}></span>
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-200">Reddit OAuth2</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">r/worldnews, r/technology…</p>
+                    <div className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white">Reddit Community</span>
+                          <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : isConfigured ? 'bg-amber-400' : 'bg-slate-600'}`}></span>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-snug">
+                          r/india, r/IndiaSpeaks & verified community discussions.
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
                         {isActive ? (
-                          <p className="text-[10px] text-emerald-400 mt-1 font-semibold">● Active — {s?.articles_total || 0} fetched</p>
+                          <>
+                            <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                              <i className="ri-check-line"></i> Active
+                            </span>
+                            <span className="text-slate-400 font-mono text-[11px]">{s?.articles_total || 0} fetched</span>
+                          </>
                         ) : isConfigured ? (
-                          <p className="text-[10px] text-amber-400 mt-1 font-semibold">⚠ Auth error</p>
+                          <span className="text-amber-400 font-semibold text-[11px]">⚠ Auth required</span>
                         ) : (
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            Add <code className="bg-slate-900 px-1 rounded">REDDIT_CLIENT_ID</code> in .env
-                          </p>
+                          <span className="text-slate-500 text-[11px]">Configurable (.env)</span>
                         )}
                       </div>
                     </div>
                   );
                 })()}
-                {/* NewsAPI */}
+
+                {/* 4. NewsAPI India */}
                 {(() => {
                   const s = sourceStatus.newsapi;
                   const isActive = s?.active;
                   const isConfigured = s?.configured;
                   return (
-                    <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-start gap-2.5">
-                      <span className={`mt-0.5 w-2 h-2 rounded-full shrink-0 ${isActive ? 'bg-emerald-400 animate-pulse' : isConfigured ? 'bg-amber-400' : 'bg-slate-600'}`}></span>
-                      <div>
-                        <p className="text-[11px] font-bold text-slate-200">NewsAPI</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Top headlines by category</p>
+                    <div className="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white">NewsAPI India</span>
+                          <span className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-emerald-400 animate-pulse' : isConfigured ? 'bg-amber-400' : 'bg-slate-600'}`}></span>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-snug">
+                          Country=in top headline query stream for national news.
+                        </p>
+                      </div>
+                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
                         {isActive ? (
-                          <p className="text-[10px] text-emerald-400 mt-1 font-semibold">● Active — {s?.articles_total || 0} fetched</p>
+                          <>
+                            <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+                              <i className="ri-check-line"></i> Active
+                            </span>
+                            <span className="text-slate-400 font-mono text-[11px]">{s?.articles_total || 0} fetched</span>
+                          </>
                         ) : isConfigured ? (
-                          <p className="text-[10px] text-amber-400 mt-1 font-semibold">⚠ Auth error</p>
+                          <span className="text-amber-400 font-semibold text-[11px]">⚠ Auth required</span>
                         ) : (
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            Add <code className="bg-slate-900 px-1 rounded">NEWSAPI_KEY</code> in .env
-                          </p>
+                          <span className="text-slate-500 text-[11px]">Configurable (.env)</span>
                         )}
                       </div>
                     </div>
                   );
                 })()}
+              </div>
+            </div>
+
+            {/* WHAT WOULD YOU LIKE TO DO? (SIMPLE, ELEGANT USER LAUNCHPAD) */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Quick Navigation & Workflows
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div
+                  onClick={() => setActiveTab('live-news')}
+                  className="bg-slate-900/70 hover:bg-slate-900 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-5 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-2">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
+                      <i className="ri-broadcast-line"></i>
+                    </div>
+                    <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                      Live News Feed
+                    </h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Explore live headlines filtered by Politics, Sports, Entertainment, Tech, and Business with search and risk indicators.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-semibold text-cyan-400 group-hover:text-cyan-300">
+                    <span>Open Live Stream ({newsArticles.length})</span>
+                    <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => setActiveTab('url-analysis')}
+                  className="bg-slate-900/70 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 rounded-2xl p-5 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-2">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
+                      <i className="ri-links-line"></i>
+                    </div>
+                    <h4 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
+                      URL & Claim Verification
+                    </h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Submit any article URL or text snippet to scrape claims, verify cross-evidence, and calculate credibility scores.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-semibold text-indigo-400 group-hover:text-indigo-300">
+                    <span>Verify a News URL</span>
+                    <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => setActiveTab('emerging')}
+                  className="bg-slate-900/70 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-5 transition-all duration-200 cursor-pointer group shadow-sm flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-2">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
+                      <i className="ri-pulse-line"></i>
+                    </div>
+                    <h4 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
+                      Emerging Anomalies
+                    </h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Detect sudden coverage velocity spikes and temporal burstiness indicating potential disinformation operations.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-semibold text-amber-400 group-hover:text-amber-300">
+                    <span>View Velocity Spikes ({liveAlerts.length})</span>
+                    <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 2: DEDICATED LIVE NEWS FEED (FULL STREAM & FILTERING)        */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'live-news' && (
+          <div className="space-y-6 animate-fadeIn">
+
+            {/* Quick Breadcrumb */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-slate-400">
+                <button
+                  onClick={() => setActiveTab('home')}
+                  className="text-slate-300 hover:text-white flex items-center gap-1.5 font-bold transition-colors cursor-pointer bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-xl border border-slate-700/60"
+                >
+                  <i className="ri-home-4-line text-indigo-400"></i> ← Back to Home
+                </button>
+                <span className="text-slate-600">/</span>
+                <span className="text-cyan-400 font-bold">Live Real-Time News Stream ({filteredArticles.length} visible)</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> Auto-polling (5s)
+                </span>
+                <button
+                  onClick={handleTriggerIngest}
+                  disabled={isIngesting}
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <i className={`ri-refresh-line ${isIngesting ? 'animate-spin' : ''}`}></i>
+                  {isIngesting ? 'Fetching...' : 'Fetch Now'}
+                </button>
               </div>
             </div>
 
